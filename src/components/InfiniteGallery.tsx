@@ -59,12 +59,15 @@ export default function InfiniteGallery({ images }: { images: GalleryImage[] }) 
 
         tl.to(textRefs.current[i], {
           width: isDesktop ? 400 : "100%",
-          height: isDesktop ? "auto" : 140, 
+          height: "auto", 
           opacity: 1,
           marginTop: 0,
           duration: 1,
           ease: "power2.inOut",
         }, `split${i}`);
+
+        // Phase 2.5: Hold the metadata on screen for longer reading time
+        tl.to({}, { duration: 1.5 });
 
         // Phase 3: Exit (if not the last image)
         if (i < images.length - 1) {
@@ -81,7 +84,7 @@ export default function InfiniteGallery({ images }: { images: GalleryImage[] }) 
       ScrollTrigger.create({
         trigger: containerRef.current,
         start: "top top",
-        end: () => `+=${images.length * 150}%`, // Longer scroll distance for 3 phases per image
+        end: () => `+=${images.length * 200}%`, // Increased scroll distance to accommodate the new hold phase
         pin: true,
         animation: tl,
         scrub: 1,
