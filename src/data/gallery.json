@@ -1,1 +1,37 @@
-[]
+[
+  {
+    "id": "1",
+    "title": "Pasta Primavera",
+    "category": "Culinary Arts",
+    "description": "A vibrant dish of freshly made pasta tossed with seasonal vegetables.",
+    "url": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?q=80&w=800&auto=format&fit=crop"
+  },
+  {
+    "id": "2",
+    "title": "Avocado Toast",
+    "category": "Breakfast",
+    "description": "Sourdough toast topped with smashed avocado, radish, and microgreens.",
+    "url": "https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?q=80&w=800&auto=format&fit=crop"
+  },
+  {
+    "id": "3",
+    "title": "Gourmet Salad",
+    "category": "Healthy Living",
+    "description": "A refreshing mix of greens, berries, and nuts with a balsamic glaze.",
+    "url": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800&auto=format&fit=crop"
+  },
+  {
+    "id": "4",
+    "title": "Artisan Pizza",
+    "category": "Comfort Food",
+    "description": "Wood-fired pizza with fresh mozzarella, basil, and heirloom tomatoes.",
+    "url": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=800&auto=format&fit=crop"
+  },
+  {
+    "id": "5",
+    "title": "Decadent Dessert",
+    "category": "Sweet Treats",
+    "description": "A rich chocolate lava cake with a scoop of vanilla bean ice cream.",
+    "url": "https://images.unsplash.com/photo-1563805042-7684c8a9e9ce?q=80&w=800&auto=format&fit=crop"
+  }
+]

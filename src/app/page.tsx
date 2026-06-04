@@ -3,7 +3,7 @@ import Link from "next/link";
 import styles from "./page.module.css";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { getGalleryImages } from "@/lib/gallery";
-import InfiniteGallery from "@/components/InfiniteGallery";
+import CoverflowCarousel from "@/components/CoverflowCarousel";
 
 export const dynamic = 'force-dynamic';
 
@@ -66,7 +66,7 @@ export default async function Home() {
           <span className={styles.galleryLabel}>Curated Works</span>
           <h2 className={styles.galleryTitle}>The Gallery</h2>
         </div>
-        <InfiniteGallery images={galleryData} />
+        <CoverflowCarousel images={galleryData} />
       </section>
 
       <section id="contact" className={styles.cta}>
