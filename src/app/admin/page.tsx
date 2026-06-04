@@ -260,7 +260,6 @@ export default function AdminPanel() {
         <Link href="/" onClick={handleHomeClick} className={styles.logo}>Shruti Mohanty</Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
           <nav className={styles.navLinks}>
-            <Link href="/gallery" className={styles.navLink}>View Gallery</Link>
             <button onClick={handleLogout} className={styles.btnSmall}>Log Out</button>
           </nav>
           <ThemeToggle />
