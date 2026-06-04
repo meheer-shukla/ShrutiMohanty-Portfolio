@@ -21,29 +21,41 @@ export default function CoverflowCarousel({ images }: { images: GalleryImage[] }
   }, [images.length]);
 
   const prev = useCallback(() => {
-    setActiveIndex((prev) => Math.max(prev - 0, 0));
+    setActiveIndex((prev) => Math.max(prev - 1, 0));
   }, []);
+
+  const isScrollingRef = useRef(false);
 
   // Handle wheel events for scrolling
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    let isScrolling = false;
-
     const handleWheel = (e: WheelEvent) => {
-      e.preventDefault(); 
-      if (isScrolling) return;
+      const isScrollDown = e.deltaY > 0 || e.deltaX > 0;
+      const isScrollUp = e.deltaY < 0 || e.deltaX < 0;
 
-      isScrolling = true;
-      if (e.deltaY > 0 || e.deltaX > 0) {
+      // Allow page scroll if we are at the boundaries
+      if (isScrollDown && activeIndex === images.length - 1) {
+        return;
+      }
+      if (isScrollUp && activeIndex === 0) {
+        return;
+      }
+
+      // Inside carousel bounds: prevent page scroll and change images
+      e.preventDefault(); 
+      if (isScrollingRef.current) return;
+
+      isScrollingRef.current = true;
+      if (isScrollDown) {
         next();
       } else {
-        setActiveIndex((prev) => Math.max(prev - 1, 0));
+        prev();
       }
 
       setTimeout(() => {
-        isScrolling = false;
+        isScrollingRef.current = false;
       }, 400); // Debounce duration to prevent flying through
     };
 
@@ -51,7 +63,7 @@ export default function CoverflowCarousel({ images }: { images: GalleryImage[] }
     return () => {
       container.removeEventListener('wheel', handleWheel);
     };
-  }, [next]);
+  }, [activeIndex, images.length, next, prev]);
 
   // Touch handling for mobile swipe
   const touchStartX = useRef<number | null>(null);
