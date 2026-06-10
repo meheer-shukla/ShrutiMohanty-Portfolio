@@ -13,6 +13,7 @@ export async function getGalleryImages() {
         id: img._id.toString(),
         title: img.title,
         category: img.category,
+        description: img.description,
         url: img.url,
         createdAt: img.createdAt
       }));
