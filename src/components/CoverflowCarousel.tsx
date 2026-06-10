@@ -14,6 +14,7 @@ interface GalleryImage {
 
 export default function CoverflowCarousel({ images }: { images: GalleryImage[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const next = useCallback(() => {
@@ -33,11 +34,11 @@ export default function CoverflowCarousel({ images }: { images: GalleryImage[] }
       ([entry]) => {
         isInViewRef.current = entry.isIntersecting;
       },
-      { threshold: 0.5 }
+      { threshold: 0.6 }
     );
 
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
+    if (wrapperRef.current) {
+      observer.observe(wrapperRef.current);
     }
 
     return () => observer.disconnect();
@@ -115,7 +116,7 @@ export default function CoverflowCarousel({ images }: { images: GalleryImage[] }
   }
 
   return (
-    <div className={styles.carouselWrapper}>
+    <div className={styles.carouselWrapper} ref={wrapperRef}>
       <div 
         className={styles.carouselContainer} 
         ref={containerRef}
