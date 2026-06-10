@@ -32,7 +32,7 @@
 
 .imageContainer {
   position: relative;
-  width: 320px;
+  width: 260px;
   aspect-ratio: 4 / 5;
   border-radius: var(--radius-md, 16px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -42,13 +42,13 @@
 
 @media (min-width: 768px) {
   .imageContainer {
-    width: 420px;
+    width: 320px;
   }
 }
 
 @media (min-width: 1024px) {
   .imageContainer {
-    width: 520px;
+    width: 400px;
   }
 }
 

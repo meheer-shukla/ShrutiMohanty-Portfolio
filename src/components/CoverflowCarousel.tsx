@@ -25,10 +25,29 @@ export default function CoverflowCarousel({ images }: { images: GalleryImage[] }
   }, []);
 
   const isScrollingRef = useRef(false);
+  const isInViewRef = useRef(false);
+
+  // Setup Intersection Observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isInViewRef.current = entry.isIntersecting;
+      },
+      { threshold: 0.5 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   // Handle wheel events for scrolling
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
+      if (!isInViewRef.current) return; // Don't intercept if not in view
+
       const isScrollDown = e.deltaY > 0 || e.deltaX > 0;
       const isScrollUp = e.deltaY < 0 || e.deltaX < 0;
 
@@ -153,9 +172,9 @@ export default function CoverflowCarousel({ images }: { images: GalleryImage[] }
       <div className={styles.metadataContainer}>
         <span className={styles.category}>{images[activeIndex]?.category || 'Editorial'}</span>
         <h3 className={styles.title}>{images[activeIndex]?.title}</h3>
-        {images[activeIndex]?.description && (
-          <p className={styles.description}>{images[activeIndex]?.description}</p>
-        )}
+        <p className={styles.description}>
+          {images[activeIndex]?.description || 'No additional description provided for this work.'}
+        </p>
       </div>
     </div>
   );
