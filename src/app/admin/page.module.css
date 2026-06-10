@@ -96,13 +96,26 @@
   text-align: center;
   border-radius: var(--radius);
   margin-bottom: 64px;
-  transition: border-color 0.2s, background-color 0.2s;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
+}
+
+:global(.dark) .uploadZone {
+  background: rgba(229, 189, 183, 0.03);
+  border-color: rgba(229, 189, 183, 0.2);
 }
 
 .uploadZone:hover {
   border-color: var(--primary);
   background-color: var(--surface-container);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.05);
+}
+
+:global(.dark) .uploadZone:hover {
+  background: rgba(229, 189, 183, 0.08);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 20px rgba(229, 189, 183, 0.1);
+  border-color: var(--primary);
 }
 
 .uploadIcon {
@@ -157,12 +170,23 @@
   background: var(--surface-container-low);
   border-radius: 16px;
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+  border: 1px solid transparent;
+}
+
+:global(.dark) .photoCard {
+  background: linear-gradient(to bottom, rgba(40, 36, 35, 0.5), rgba(28, 28, 25, 0.8));
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .photoCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+:global(.dark) .photoCard:hover {
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(229, 189, 183, 0.1);
+  border-color: rgba(229, 189, 183, 0.3);
 }
 
 .photoThumb {
@@ -209,8 +233,12 @@
   padding: 24px;
 }
 
+:global(.dark) .loginContainer {
+  background: radial-gradient(circle at top, var(--surface-container), var(--background));
+}
+
 .loginCard {
-  background-color: rgba(var(--surface-rgb, 255, 255, 255), 0.7);
+  background-color: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   padding: 48px;
@@ -223,8 +251,9 @@
 }
 
 :global(.dark) .loginCard {
-  background-color: rgba(var(--surface-rgb, 28, 28, 25), 0.7);
-  border: 1px solid rgba(255,255,255,0.05);
+  background: linear-gradient(145deg, rgba(35, 31, 30, 0.8), rgba(28, 28, 25, 0.4));
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(229, 189, 183, 0.15);
 }
 
 .loginTitle {
@@ -265,15 +294,21 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(28,28,25,0.8);
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+:global(.dark) .modalOverlay {
+  background: rgba(0,0,0,0.7);
 }
 
 .modalContent {
-  background: rgba(var(--surface-rgb, 255, 255, 255), 0.85);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   padding: 48px;
@@ -282,11 +317,24 @@
   max-width: 500px;
   border: 1px solid rgba(255,255,255,0.2);
   box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+  transform: translateY(0);
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :global(.dark) .modalContent {
-  background: rgba(var(--surface-rgb, 28, 28, 25), 0.85);
-  border: 1px solid rgba(255,255,255,0.05);
+  background: linear-gradient(145deg, rgba(40, 36, 35, 0.9), rgba(28, 28, 25, 0.9));
+  border: 1px solid rgba(229, 189, 183, 0.2);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .textareaField {

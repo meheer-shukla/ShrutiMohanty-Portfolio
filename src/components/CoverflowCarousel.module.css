@@ -32,7 +32,7 @@
 
 .imageContainer {
   position: relative;
-  width: 260px;
+  width: 320px;
   aspect-ratio: 4 / 5;
   border-radius: var(--radius-md, 16px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -42,13 +42,13 @@
 
 @media (min-width: 768px) {
   .imageContainer {
-    width: 320px;
+    width: 420px;
   }
 }
 
 @media (min-width: 1024px) {
   .imageContainer {
-    width: 400px;
+    width: 520px;
   }
 }
 
@@ -96,8 +96,14 @@
   font-family: var(--font-body, inherit);
   font-size: 14px;
   line-height: 1.6;
-  color: var(--on-surface-variant, #ccc);
+  color: var(--on-surface, #fff);
   font-weight: 400;
+  background-color: rgba(229, 189, 183, 0.15);
+  border: 1px solid rgba(229, 189, 183, 0.3);
+  padding: 16px 24px;
+  border-radius: 12px;
+  display: inline-block;
+  backdrop-filter: blur(8px);
 }
 
 @media (min-width: 768px) {

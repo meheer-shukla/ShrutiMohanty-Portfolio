@@ -28,9 +28,6 @@ export default function CoverflowCarousel({ images }: { images: GalleryImage[] }
 
   // Handle wheel events for scrolling
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
     const handleWheel = (e: WheelEvent) => {
       const isScrollDown = e.deltaY > 0 || e.deltaX > 0;
       const isScrollUp = e.deltaY < 0 || e.deltaX < 0;
@@ -59,9 +56,9 @@ export default function CoverflowCarousel({ images }: { images: GalleryImage[] }
       }, 400); // Debounce duration to prevent flying through
     };
 
-    container.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('wheel', handleWheel, { passive: false });
     return () => {
-      container.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('wheel', handleWheel);
     };
   }, [activeIndex, images.length, next, prev]);
 
