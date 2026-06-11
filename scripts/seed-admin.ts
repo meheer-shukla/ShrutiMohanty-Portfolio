@@ -10,9 +10,12 @@
  *   ADMIN_USERNAME - (optional) Username, defaults to 'admin'
  */
 
-import 'dotenv/config';
+import { loadEnvConfig } from '@next/env';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+
+// Load environment variables exactly like Next.js does
+loadEnvConfig(process.cwd());
 
 const MONGODB_URI = process.env.MONGODB_URI;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
