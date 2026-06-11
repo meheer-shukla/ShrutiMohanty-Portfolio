@@ -74,6 +74,18 @@
   width: 100%;
   position: relative;
   z-index: 10;
+  animation: slideUpFade 1.2s cubic-bezier(0.16, 1, 0.3, 1) 2.2s both; /* Delay to play after preloader */
+}
+
+@keyframes slideUpFade {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .heroTitle {
@@ -117,6 +129,18 @@
     width: 520px;
     height: 620px;
     z-index: 1;
+    animation: fadeInScale 1.5s cubic-bezier(0.16, 1, 0.3, 1) 2.4s both;
+  }
+}
+
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 

@@ -47,7 +47,17 @@ export default function CoverflowCarousel({ images }: { images: GalleryImage[] }
   // Handle wheel events for scrolling
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
-      if (!isInViewRef.current) return; // Don't intercept if not in view
+      if (!wrapperRef.current) return; // Wait for ref
+
+      const rect = wrapperRef.current.getBoundingClientRect();
+      const viewHeight = window.innerHeight;
+      const wrapperCenter = rect.top + rect.height / 2;
+      const viewCenter = viewHeight / 2;
+
+      // If the center of the carousel is more than 35% of the viewport height away from the center of the screen, don't intercept.
+      if (Math.abs(wrapperCenter - viewCenter) > viewHeight * 0.35) {
+        return; // Let the page scroll normally
+      }
 
       const isScrollDown = e.deltaY > 0 || e.deltaX > 0;
       const isScrollUp = e.deltaY < 0 || e.deltaX < 0;

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { EB_Garamond, Hanken_Grotesk } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import Preloader from "@/components/Preloader";
 import "./globals.css";
 
 const ebGaramond = EB_Garamond({
@@ -27,6 +28,7 @@ export default function RootLayout({
     <html lang="en" className={`${ebGaramond.variable} ${hankenGrotesk.variable}`} suppressHydrationWarning>
       <body>
         <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
+          <Preloader />
           {children}
         </ThemeProvider>
       </body>
