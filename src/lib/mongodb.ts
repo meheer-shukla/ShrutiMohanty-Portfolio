@@ -18,11 +18,8 @@ declare global {
   var mongoose: MongooseCache | undefined;
 }
 
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
+let cached: MongooseCache = global.mongoose || { conn: null, promise: null };
+global.mongoose = cached;
 
 async function connectToDatabase() {
   if (!MONGODB_URI) {
