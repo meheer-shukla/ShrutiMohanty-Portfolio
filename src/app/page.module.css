@@ -396,12 +396,3 @@
   text-decoration: none;
 }
 
-.adminLink {
-  opacity: 0.1;
-  font-size: 10px;
-  transition: opacity 0.3s;
-}
-
-.adminLink:hover {
-  opacity: 0.5;
-}

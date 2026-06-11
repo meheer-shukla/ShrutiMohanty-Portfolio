@@ -2,11 +2,18 @@ import { NextResponse } from 'next/server';
 import { list } from '@vercel/blob';
 import connectToDatabase from '@/lib/mongodb';
 import { GalleryImage } from '@/models/GalleryImage';
+import { verifyAuth } from '@/lib/auth';
 import fs from 'fs';
 import path from 'path';
 
 export async function GET(request: Request) {
   try {
+    // SECURITY: Verify JWT Auth Token before allowing migration
+    const isAuthenticated = await verifyAuth();
+    if (!isAuthenticated) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const execute = searchParams.get('execute');
 
@@ -16,7 +23,7 @@ export async function GET(request: Request) {
       });
     }
 
-    let existingData: any[] = [];
+    let existingData: { id: string; url: string; title: string; category?: string }[] = [];
 
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       const { blobs } = await list({ prefix: 'manifest.json' });
@@ -65,8 +72,9 @@ export async function GET(request: Request) {
       success: true, 
       message: `Migration complete. Migrated: ${migratedCount}, Skipped (Already exists): ${skippedCount}`
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Migration Error:", error);
-    return NextResponse.json({ error: error.message || 'Failed to migrate' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Failed to migrate';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

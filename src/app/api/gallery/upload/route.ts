@@ -1,8 +1,15 @@
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { NextResponse } from 'next/server';
+import { verifyAuth } from '@/lib/auth';
 
 export async function POST(request: Request): Promise<NextResponse> {
   try {
+    // SECURITY: Verify JWT Auth Token before allowing uploads
+    const isAuthenticated = await verifyAuth();
+    if (!isAuthenticated) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = (await request.json()) as HandleUploadBody;
     
     // Safety check - if no token is configured, this will fail immediately
@@ -13,22 +20,23 @@ export async function POST(request: Request): Promise<NextResponse> {
     const jsonResponse = await handleUpload({
       body,
       request,
-      onBeforeGenerateToken: async (pathname) => {
+      onBeforeGenerateToken: async () => {
         return {
           allowedContentTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
           maximumSizeInBytes: 50 * 1024 * 1024, // 50MB
           tokenPayload: JSON.stringify({}),
         };
       },
-      onUploadCompleted: async ({ blob, tokenPayload }) => {
+      onUploadCompleted: async ({ blob }) => {
         console.log("Client upload completed successfully", blob.url);
       },
     });
 
     return NextResponse.json(jsonResponse);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Upload handler failed';
     return NextResponse.json(
-      { error: error.message || "Upload handler failed" },
+      { error: message },
       { status: 400 }
     );
   }

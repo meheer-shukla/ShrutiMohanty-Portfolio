@@ -3,14 +3,7 @@
 import Image from 'next/image';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import styles from './CoverflowCarousel.module.css';
-
-interface GalleryImage {
-  id: string;
-  url: string;
-  title: string;
-  category?: string;
-  description?: string;
-}
+import type { GalleryImage } from '@/lib/types';
 
 export default function CoverflowCarousel({ images }: { images: GalleryImage[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -140,7 +133,7 @@ export default function CoverflowCarousel({ images }: { images: GalleryImage[] }
 
           let translateX = 0;
           let scale = 1.1; // Make center image bigger
-          let zIndex = 100 - absOffset;
+          const zIndex = 100 - absOffset;
           let opacity = 1;
 
           if (absOffset > 0) {

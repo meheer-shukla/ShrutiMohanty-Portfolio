@@ -3,8 +3,14 @@ import { put, del } from '@vercel/blob';
 import connectToDatabase from '@/lib/mongodb';
 import { GalleryImage } from '@/models/GalleryImage';
 import { verifyAuth } from '@/lib/auth';
+import { validateCsrf } from '@/lib/csrf';
+import { ALLOWED_CATEGORIES } from '@/lib/types';
 import fs from 'fs';
 import path from 'path';
+
+/** Maximum lengths for input validation */
+const MAX_TITLE_LENGTH = 100;
+const MAX_DESCRIPTION_LENGTH = 500;
 
 export async function GET() {
   try {
@@ -23,7 +29,10 @@ export async function GET() {
       createdAt: img.createdAt
     }));
     
-    return NextResponse.json(formattedImages);
+    const response = NextResponse.json(formattedImages);
+    // Cache for 60s, serve stale while revalidating for up to 120s
+    response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
+    return response;
   } catch (error) {
     console.error("GET Gallery Error:", error);
     return NextResponse.json({ error: 'Failed to read data' }, { status: 500 });
@@ -32,6 +41,10 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    // CSRF validation
+    const csrfError = validateCsrf(request);
+    if (csrfError) return csrfError;
+
     // SECURITY: Verify JWT Auth Token
     const isAuthenticated = await verifyAuth();
     if (!isAuthenticated) {
@@ -39,14 +52,27 @@ export async function POST(request: Request) {
     }
 
     const formData = await request.formData();
-    const title = formData.get('title') as string;
-    const category = formData.get('category') as string || 'Editorial';
-    const description = formData.get('description') as string || '';
+    const title = (formData.get('title') as string || '').trim();
+    const category = (formData.get('category') as string || 'Editorial').trim();
+    const description = (formData.get('description') as string || '').trim();
     const file = formData.get('file') as File | null;
     const existingUrl = formData.get('url') as string | null; // From client upload
 
-    if (!title || (!file && !existingUrl)) {
-      return NextResponse.json({ error: 'Title and file/url are required' }, { status: 400 });
+    // --- Input Validation ---
+    if (!title) {
+      return NextResponse.json({ error: 'Title is required' }, { status: 400 });
+    }
+    if (title.length > MAX_TITLE_LENGTH) {
+      return NextResponse.json({ error: `Title must be ${MAX_TITLE_LENGTH} characters or fewer` }, { status: 400 });
+    }
+    if (description.length > MAX_DESCRIPTION_LENGTH) {
+      return NextResponse.json({ error: `Description must be ${MAX_DESCRIPTION_LENGTH} characters or fewer` }, { status: 400 });
+    }
+    if (!ALLOWED_CATEGORIES.includes(category as typeof ALLOWED_CATEGORIES[number])) {
+      return NextResponse.json({ error: `Invalid category. Allowed: ${ALLOWED_CATEGORIES.join(', ')}` }, { status: 400 });
+    }
+    if (!file && !existingUrl) {
+      return NextResponse.json({ error: 'An image file or URL is required' }, { status: 400 });
     }
 
     let fileUrl = existingUrl || "";
@@ -88,14 +114,19 @@ export async function POST(request: Request) {
     };
 
     return NextResponse.json({ success: true, item: formattedItem }, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to save data';
     console.error("POST Gallery Error:", error);
-    return NextResponse.json({ error: error.message || 'Failed to save data' }, { status: 500 });
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
 export async function DELETE(request: Request) {
   try {
+    // CSRF validation
+    const csrfError = validateCsrf(request);
+    if (csrfError) return csrfError;
+
     // SECURITY: Verify JWT Auth Token
     const isAuthenticated = await verifyAuth();
     if (!isAuthenticated) {
@@ -133,8 +164,9 @@ export async function DELETE(request: Request) {
     await GalleryImage.findByIdAndDelete(id);
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to delete';
     console.error("DELETE Gallery Error:", error);
-    return NextResponse.json({ error: error.message || 'Failed to delete' }, { status: 500 });
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

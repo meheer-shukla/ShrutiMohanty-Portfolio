@@ -6,13 +6,14 @@ import Link from "next/link";
 import Image from "next/image";
 import styles from "./page.module.css";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import type { GalleryImage } from "@/lib/types";
 
 export default function AdminPanel() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   
-  const [images, setImages] = useState<any[]>([]);
+  const [images, setImages] = useState<GalleryImage[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
@@ -24,12 +25,14 @@ export default function AdminPanel() {
   useEffect(() => {
     // Basic persistent auth check via sessionStorage
     if (typeof window !== "undefined" && sessionStorage.getItem("adminAuth") === "true") {
+      // eslint-disable-next-line
       setIsAuthenticated(true);
       fetchImages();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchImages = async () => {
+  async function fetchImages() {
     try {
       const res = await fetch("/api/gallery");
       if (res.status === 401) {
@@ -66,7 +69,7 @@ export default function AdminPanel() {
         return;
       }
       setLoginError("Incorrect password");
-    } catch (err) {
+    } catch {
       setLoginError("Authentication failed");
     }
   };
@@ -95,12 +98,12 @@ export default function AdminPanel() {
     }
   };
 
-  const handleLogout = async () => {
+  async function handleLogout() {
     setIsAuthenticated(false);
     sessionStorage.removeItem("adminAuth");
     try {
       await fetch("/api/auth", { method: "DELETE" });
-    } catch (e) {}
+    } catch {}
   };
 
   const handleHomeClick = () => {
@@ -178,7 +181,7 @@ export default function AdminPanel() {
         try {
           const errorData = await res.json();
           if (errorData.error) errorMessage = errorData.error;
-        } catch (parseError) {
+        } catch {
           // If it fails to parse JSON, it might be an HTML error page from Vercel (e.g. 413 Payload Too Large)
           if (res.status === 413) {
             errorMessage = "File is too large. Vercel limits server uploads to 4.5MB.";
@@ -199,12 +202,12 @@ export default function AdminPanel() {
       }
       
       URL.revokeObjectURL(localPreviewUrl);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       // Rollback on failure
       setImages(previousImages);
       URL.revokeObjectURL(localPreviewUrl);
-      alert(`Failed to add photo: ${err.message}`);
+      alert(`Failed to add photo: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setUploading(false);
     }
@@ -282,7 +285,6 @@ export default function AdminPanel() {
         {/* Photo Grid */}
         <div className={styles.photoGrid}>
           {images.map((img) => {
-            const filename = img.url.split('/').pop()?.split('?')[0] || `${img.title}.jpg`;
             return (
               <div key={img.id} className={styles.photoCard}>
                 <div className={styles.photoThumb}>

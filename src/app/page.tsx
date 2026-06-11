@@ -5,7 +5,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { getGalleryImages } from "@/lib/gallery";
 import CoverflowCarousel from "@/components/CoverflowCarousel";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60; // ISR: revalidate every 60 seconds
 
 export default async function Home() {
   const galleryData = await getGalleryImages();
@@ -37,6 +37,7 @@ export default async function Home() {
               src="/images/IMG_6111.JPG"
               alt="Editorial Hero Image"
               fill
+              priority
               className={styles.heroImg}
             />
           </div>
@@ -45,6 +46,7 @@ export default async function Home() {
               src="/images/IMG_6028.JPG"
               alt="Abstract Placeholder"
               fill
+              priority
               className={styles.heroImg}
             />
           </div>
@@ -98,7 +100,6 @@ export default async function Home() {
         <div className={styles.footerRight}>
           <Link href="https://www.linkedin.com/in/shrutimohanty/" className={styles.footerLink}>LinkedIn</Link>
           <Link href="https://www.instagram.com/sochography_?igsh=MTJoZnNjbXk0YXgzcg==" className={styles.footerLink}>Instagram</Link>
-          <Link href="/admin" className={`${styles.footerLink} ${styles.adminLink}`} aria-label="Admin Access">⌘</Link>
         </div>
       </footer>
     </div>

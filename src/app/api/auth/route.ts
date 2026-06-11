@@ -1,31 +1,39 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { SignJWT } from 'jose';
 import connectToDatabase from '@/lib/mongodb';
 import { AdminUser } from '@/models/AdminUser';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_change_in_production';
+import { createAdminToken, JWT_COOKIE_NAME, JWT_MAX_AGE } from '@/lib/auth';
+import { validateCsrf } from '@/lib/csrf';
+import { isRateLimited, resetRateLimit, getRateLimitResetSeconds } from '@/lib/rate-limit';
 
 export async function POST(request: Request) {
   try {
-    const { password, username = 'admin' } = await request.json();
-    
-    await connectToDatabase();
+    // CSRF validation
+    const csrfError = validateCsrf(request);
+    if (csrfError) return csrfError;
 
-    // Check if any admin exists. If not, create one using the provided password.
-    // This is useful for first-time setup.
-    const adminCount = await AdminUser.countDocuments();
-    if (adminCount === 0) {
-      if (!password || password.length < 6) {
-        return NextResponse.json({ success: false, error: 'Password must be at least 6 characters for first-time setup.' }, { status: 400 });
-      }
-      const hashedPassword = await bcrypt.hash(password, 10);
-      await AdminUser.create({ username, passwordHash: hashedPassword });
+    // Rate limiting (use forwarded IP on Vercel, fallback to 'unknown')
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    if (isRateLimited(ip)) {
+      const retryAfter = getRateLimitResetSeconds(ip);
+      return NextResponse.json(
+        { success: false, error: `Too many login attempts. Try again in ${Math.ceil(retryAfter / 60)} minutes.` },
+        { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+      );
     }
 
-    // Verify credentials
+    const { password, username = 'admin' } = await request.json();
+
+    if (!password || typeof password !== 'string') {
+      return NextResponse.json({ success: false, error: 'Password is required' }, { status: 400 });
+    }
+
+    await connectToDatabase();
+
+    // Verify credentials against existing admin user
     const admin = await AdminUser.findOne({ username });
     if (!admin) {
+      // Generic error message to prevent username enumeration
       return NextResponse.json({ success: false, error: 'Invalid credentials' }, { status: 401 });
     }
 
@@ -34,26 +42,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Invalid credentials' }, { status: 401 });
     }
 
-    // Generate JWT
-    const token = await new SignJWT({ username: admin.username, role: 'admin' })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('24h')
-      .sign(new TextEncoder().encode(JWT_SECRET));
+    // Successful login — reset rate limit and issue token
+    resetRateLimit(ip);
 
-    // Create response and set HTTP-only cookie
+    const token = await createAdminToken(admin.username);
+
     const response = NextResponse.json({ success: true });
     response.cookies.set({
-      name: 'admin_token',
+      name: JWT_COOKIE_NAME,
       value: token,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24, // 24 hours
+      maxAge: JWT_MAX_AGE,
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Auth error:", error);
     return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
   }
@@ -61,6 +67,6 @@ export async function POST(request: Request) {
 
 export async function DELETE() {
   const response = NextResponse.json({ success: true });
-  response.cookies.delete('admin_token');
+  response.cookies.delete(JWT_COOKIE_NAME);
   return response;
 }

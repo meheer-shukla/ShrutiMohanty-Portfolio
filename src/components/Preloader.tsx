@@ -10,18 +10,18 @@ export default function Preloader() {
     // Hide native scrollbar while preloading
     document.body.style.overflow = 'hidden';
     
-    // Simulate loading progress
+    // Simulate loading progress (fast — ~1.2s total)
     let currentProgress = 0;
     const interval = setInterval(() => {
-      // Slow down towards the end for realism
-      const increment = currentProgress > 85 ? Math.floor(Math.random() * 4) + 1 : Math.floor(Math.random() * 12) + 4;
+      // Larger increments for faster completion
+      const increment = currentProgress > 85 ? Math.floor(Math.random() * 6) + 2 : Math.floor(Math.random() * 18) + 8;
       currentProgress += increment;
       
       if (currentProgress >= 100) {
         currentProgress = 100;
         clearInterval(interval);
         
-        // When 100% is reached, wait a moment, then trigger the flash
+        // When 100% is reached, trigger the flash quickly
         setTimeout(() => {
           setStage('flashing');
           setTimeout(() => {
@@ -29,12 +29,12 @@ export default function Preloader() {
             document.body.style.overflow = '';
             setTimeout(() => {
               setStage('done');
-            }, 800);
-          }, 400); // Shutter flash trigger duration
-        }, 500); // Wait 0.5s after hitting 100%
+            }, 500);
+          }, 300); // Shutter flash trigger duration
+        }, 200); // Brief pause after hitting 100%
       }
       setProgress(currentProgress);
-    }, 120); // Update speed interval
+    }, 80); // Faster update interval
 
     return () => {
       clearInterval(interval);
